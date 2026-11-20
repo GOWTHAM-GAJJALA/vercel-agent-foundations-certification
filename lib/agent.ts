@@ -11,6 +11,22 @@
  */
 export const MODEL = process.env.AGENT_MODEL || "openai/gpt-5.2";
 
+/**
+ * Model-call resilience shared by both agents.
+ *
+ * - AI Gateway tries these models in order if the primary model fails or is
+ *   rate-limited. Each model has its own rate limit, so a burst of requests
+ *   doesn't fail a turn. All support tool use.
+ * - maxRetries 5 backs off ~2s, 4s, 8s, 16s, 32s (~62s total), which outlasts
+ *   a per-minute rate-limit window. The default (2) gives up after ~6s.
+ */
+export const MODEL_SETTINGS = {
+  maxRetries: 5,
+  providerOptions: {
+    gateway: { models: ["openai/gpt-4.1-mini", "openai/gpt-5-mini"] },
+  },
+};
+
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }

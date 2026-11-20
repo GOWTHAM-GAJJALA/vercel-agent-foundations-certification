@@ -7,7 +7,7 @@ import {
   type UIMessage,
 } from "ai";
 import { getWritable } from "workflow";
-import { adminInstructions, MODEL } from "@/lib/agent";
+import { adminInstructions, MODEL, MODEL_SETTINGS } from "@/lib/agent";
 import { readMemory } from "@/lib/sandbox";
 import { adminTools } from "@/lib/tools";
 
@@ -47,6 +47,7 @@ export async function adminChatWorkflow(messages: AdminUIMessage[]) {
 
   const agent = new WorkflowAgent({
     model: MODEL,
+    ...MODEL_SETTINGS,
     instructions,
     tools: adminTools,
   });

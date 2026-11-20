@@ -7,7 +7,7 @@ import {
   type UIMessage,
 } from "ai";
 import { getWritable } from "workflow";
-import { MODEL, shoppingInstructions } from "@/lib/agent";
+import { MODEL, MODEL_SETTINGS, shoppingInstructions } from "@/lib/agent";
 import { shoppingTools } from "@/lib/tools";
 
 /** Chat message type that knows every shopping tool's input and output. */
@@ -30,6 +30,7 @@ export async function shoppingChatWorkflow(messages: ShoppingUIMessage[]) {
 
   const agent = new WorkflowAgent({
     model: MODEL,
+    ...MODEL_SETTINGS,
     instructions: shoppingInstructions(),
     tools: shoppingTools,
   });

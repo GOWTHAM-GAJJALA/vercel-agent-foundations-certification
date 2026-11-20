@@ -134,6 +134,7 @@ Each chat message starts one workflow run. The agent (`WorkflowAgent` from `@ai-
 
 - **`WorkflowAgent` (`@ai-sdk/workflow`)** instead of the deprecated `DurableAgent`: `@workflow/ai` only supports AI SDK 6, and this project uses AI SDK 7.
 - **Model:** `openai/gpt-5.2` through AI Gateway: reliable tool calling, low latency, and correct money formatting in testing. Change it with `AGENT_MODEL`.
+- **Model resilience:** AI Gateway fallback models (`openai/gpt-4.1-mini`, then `openai/gpt-5-mini`) take over if the primary model fails or is rate-limited, and model calls retry with backoff for about a minute (`maxRetries: 5`). This matters on AI Gateway's free tier, which limits requests per minute per model.
 - **Errors:** tools return `{ ok: false, error }` for expected problems (validation, not found, ineligible) so the agent can explain them, and throw for transient failures so the workflow retries. Error text is built only from status, code, and path; the store client puts `BYPASS_SECRET` in request URLs, so raw error details are never passed to the model.
 - **Conversation storage is per browser** (`localStorage`). That covers refresh and reconnect for this demo; a production version would store conversations server-side per user.
 - **Admin auth is the starter's demo cookie** (the cookie value is the password). It's kept as provided and isn't suitable for real use.
