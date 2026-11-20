@@ -91,13 +91,29 @@ async function preauthorizeRefundStep(
   }
 }
 
+/**
+ * Webhook URLs are built from VERCEL_URL, the deployment-specific hostname,
+ * which Vercel deployment protection puts behind a login, so the store's
+ * callback would be redirected. In production, send the callback to the
+ * public production domain instead; the webhook is resolved by its token, so
+ * any production deployment can receive it. Elsewhere the URL is kept and
+ * the workflow falls back to polling.
+ */
+function publicCallbackUrl(webhookUrl: string): string {
+  const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (process.env.VERCEL_ENV !== "production" || !productionHost) return webhookUrl;
+  const url = new URL(webhookUrl);
+  url.host = productionHost;
+  return url.toString();
+}
+
 async function fileReturnStep(
   request: ReturnRequest,
   callback: string,
 ): Promise<Return> {
   "use step";
   try {
-    return await createReturn({ ...request, callback });
+    return await createReturn({ ...request, callback: publicCallbackUrl(callback) });
   } catch (error) {
     throw toStepError(error, "filing the return");
   }

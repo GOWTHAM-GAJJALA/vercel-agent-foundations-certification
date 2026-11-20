@@ -95,7 +95,7 @@ Each chat message starts one workflow run. The agent (`WorkflowAgent` from `@ai-
 **Durability.**
 - Model calls and tool executions are workflow steps: transient store or model failures are retried, and completed steps are never repeated.
 - `returnOrder` returns as soon as the return workflow starts, so the chat isn't blocked. In `returnOrderWorkflow`, notifying the customer, pre-authorizing the refund, and filing the return are separate steps. If filing fails and is retried, the customer isn't notified twice and the refund isn't pre-authorized twice (the store creates a new authorization on every call). 4xx responses fail permanently (`FatalError`); network errors, 5xx, and 429 retry.
-- The return workflow passes a Workflow webhook URL as the store's `callback` and waits for the decision (approved / rejected / needs info), falling back to polling `GET /returns/:id` after three minutes.
+- The return workflow passes a Workflow webhook URL as the store's `callback` and waits for the decision (approved / rejected / needs info), falling back to polling `GET /returns/:id` after three minutes. Webhook URLs are built from the deployment-specific hostname, which Vercel deployment protection puts behind a login, so in production the callback is sent to the public production domain instead. On preview deployments and locally, the polling fallback is used.
 
 **Chat recovery.** The browser keeps the conversation and the id of any in-progress run in `localStorage`.
 - If the connection drops mid-reply, `WorkflowChatTransport` reconnects to `/api/chat/:runId/stream?startIndex=N`.
