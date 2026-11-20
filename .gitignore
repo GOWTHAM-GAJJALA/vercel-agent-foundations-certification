@@ -16,8 +16,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
+# env files (the example has names only, no values)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -25,11 +26,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-# editor assistant config
-CLAUDE.md
-AGENTS.md
-.agents/
-skills-lock.json
 
 # local build caches
 *.tsbuildinfo
+/.swc

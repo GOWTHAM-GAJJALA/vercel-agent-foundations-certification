@@ -399,6 +399,13 @@ export async function preauthorizeRefund(
   });
 }
 
+/** Current state of a return (polling fallback when no callback arrives). */
+export async function getReturn(id: string): Promise<Return> {
+  return request<Return>(`/returns/${encodeURIComponent(id)}`, {
+    cache: "no-store",
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Back Office (admin)
 //

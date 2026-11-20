@@ -1,16 +1,16 @@
-/**
- * This is where the chat API route will live.
- *
- * During the workshop you'll wire this up to the agent in `lib/agent.ts`
- * using `createAgentUIStreamResponse` from the AI SDK. The chat panel in
- * `components/agent-chat.tsx` posts here once you swap its placeholder
- * `useState` for `useChat`.
- *
- * Workshop docs: https://agent-foundations-certification.vercel.app/docs/chat-agent
- */
+import { readMessages, startChatRun } from "@/lib/chat-route";
+import {
+  shoppingChatWorkflow,
+  type ShoppingUIMessage,
+} from "@/lib/workflows/chat-flow";
 
-export const POST = async () =>
-  new Response(
-    "Not implemented yet — finish the chat-agent workshop step to enable this route.",
-    { status: 501 },
-  );
+/**
+ * Customer chat. Each message starts a durable `shoppingChatWorkflow` run;
+ * the response streams the agent's output and carries the run id so the
+ * client can reconnect via `/api/chat/[id]/stream`.
+ */
+export async function POST(request: Request) {
+  const messages = await readMessages(request);
+  if (messages instanceof Response) return messages;
+  return startChatRun(shoppingChatWorkflow, messages as ShoppingUIMessage[]);
+}
