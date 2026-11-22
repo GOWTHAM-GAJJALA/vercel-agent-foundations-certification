@@ -26,8 +26,9 @@ export async function loginAction(formData: FormData): Promise<void> {
 
 export async function logoutAction(): Promise<void> {
   const store = await cookies();
+  // One delete per cookie name: Next.js keeps only the last instruction for
+  // a name, so a second delete (e.g. for path "/admin") would replace this one
+  // and leave the session cookie in place.
   store.delete({ name: ADMIN_COOKIE_NAME, path: "/" });
-  // Also clear cookies set by the original /admin-scoped login.
-  store.delete({ name: ADMIN_COOKIE_NAME, path: "/admin" });
   redirect("/admin/login");
 }
