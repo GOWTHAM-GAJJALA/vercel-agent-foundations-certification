@@ -88,7 +88,7 @@ Each chat message starts one workflow run. The agent (`WorkflowAgent` from `@ai-
 | `searchProducts` | Text and category search; no arguments browses the full catalog. Categories are validated against `getCategories()`; an unknown category returns the valid list. |
 | `getAllCategories` | Current categories with product counts, from store data. |
 | `getProductDetails` | One product's description, price, all images, tags, and live stock (`/products/:id/stock`). |
-| `returnOrder` | Looks up the order, rejects missing or ineligible orders (paid, pending, cancelled), then starts `returnOrderWorkflow` and confirms that the return was filed. |
+| `returnOrder` | Looks up the order, rejects missing or ineligible orders (paid, pending, cancelled), then starts `returnOrderWorkflow` and confirms that the return was filed. The store API accepts duplicate returns, so the start is idempotent per order (a Workflow start hook with the token `return:<orderId>`, kept for 24 hours): a repeated request is refused instead of filing twice. |
 
 **Generative UI.** Search results render as browsable product cards (image, name, formatted price, link to the existing product page). Details render as a product card with images, description, price, live stock, category, and tags. Returns render as a confirmation card. Every tool shows a progress state and explains failures, missing products, and empty results.
 
@@ -151,3 +151,4 @@ Each chat message starts one workflow run. The agent (`WorkflowAgent` from `@ai-
 | `pnpm dev` | Start the dev server |
 | `pnpm build` | Production build (compiles workflows and steps) |
 | `pnpm start` | Serve the production build |
+| `pnpm typecheck` | TypeScript check (also enforced by `pnpm build`) |

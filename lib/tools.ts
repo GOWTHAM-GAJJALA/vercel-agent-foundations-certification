@@ -19,6 +19,7 @@
  */
 import { tool } from "ai";
 import { start } from "workflow/api";
+import { HookConflictError } from "workflow/errors";
 import { z } from "zod";
 import {
   ApiRequestError,
@@ -280,9 +281,26 @@ export async function startReturnStep(input: {
       productId: item.productId,
       quantity: item.quantity,
     }));
-    const run = await start(returnOrderWorkflow, [
-      { orderId, reason: input.reason.trim(), items },
-    ]);
+    // The store accepts duplicate returns, so the Workflow start itself is
+    // made idempotent per order: a second request within 24 hours finds the
+    // token taken (HookConflictError) and no second run is created.
+    let run;
+    try {
+      run = await start(
+        returnOrderWorkflow,
+        [{ orderId, reason: input.reason.trim(), items }],
+        { experimental_hook: { token: `return:${orderId}`, experimental_minRetention: "24h" } },
+      );
+    } catch (error) {
+      if (HookConflictError.is(error)) {
+        return {
+          ok: false,
+          error: `A return for order ${orderId} was already filed recently, so a second one wasn't created. The existing return is being processed.`,
+          code: "ALREADY_FILED",
+        };
+      }
+      throw error;
+    }
 
     const hydrated = order.items as Array<
       (typeof order.items)[number] & { product?: { name?: string } }

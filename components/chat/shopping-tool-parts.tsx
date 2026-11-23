@@ -193,8 +193,14 @@ export function ReturnConfirmation({ result }: { result: ReturnOrderResult }) {
   if (!result.ok) {
     return (
       <ToolNotice
-        tone={result.notFound ? "empty" : "error"}
-        title={result.notFound ? "Order not found" : "Return not filed"}
+        tone={result.notFound || result.code === "ALREADY_FILED" ? "empty" : "error"}
+        title={
+          result.notFound
+            ? "Order not found"
+            : result.code === "ALREADY_FILED"
+              ? "Return already filed"
+              : "Return not filed"
+        }
         message={result.error}
       />
     );
